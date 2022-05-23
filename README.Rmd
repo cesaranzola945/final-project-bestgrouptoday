@@ -1,0 +1,218 @@
+---
+title: "Group Assignment Writeup & Analysis"
+author: "Cesar Anzola | Ahyaan Raghuvanshi"
+date: "16/03/2022"
+output: 
+  pdf_document:
+    number_sections: yes
+  html_document:
+    df_print: paged
+urlcolor: blue
+---
+
+NOTE: See README.pdf for best readability. 
+```{r echo=T, results='hide'}
+library(tidyverse)
+library(dplyr)
+library(png)
+
+setwd("/Users/Agha/Documents/GitHub/final-project-bestgrouptoday")
+
+```
+
+# MORAL MONEY: Introduction to ESG Metrics
+
+In the past decade, financiers have shown increasing interest in transitioning 
+to a sustainable global economy. Money managers are reluctant to associate themselves
+with carbon-intensive and socially-irresponsible businesses, and have coalesced 
+around the development and application of a standardised metric called
+ESG (Environmental, Social, and Governance metric). 
+
+ESG is a meta indicator of public and private listed companies’ impact on the environment, 
+local communities, supply chains, gender diversity, and wealth inequality. Tackling issues
+erstwhile labelled as ‘market externalities’ that did not necessarily affect the 
+bottom line, new ESG metrics signal to private and institutional investors not 
+only if their money is protected from risks within new realities of climate change
+and social justice movements, but also the level of moral good performed by it.
+
+This project will probe two problem with ESG metrics. First, too many ratings
+agencies use non-transparent methodologies to provide ESG scores (1-100) of companies,
+which make them not just unreliable but susceptible to be used as a false marketing tool,
+where highly polluting fossil fuel companies cherry-pick the agency that gives
+them the highest score. Second, given that the basis for calculating ESG scores
+is costly bureaucratic self-reported company data, scored end up being biased towards
+large companies. Both issues thus lead to a situation where the  market for 
+environmentally and socially responsible investments gets increasingly captured 
+by highly polluting big companies.
+
+We sample all the energy companies that have received an ESG score by Refinitiv 
+(formerly Thomson Reuters): a British-American financial markets information
+agency, covering >80% of global market capitalisation. Since their ESG ratings
+methodology is non-transparent, not unlike other ratings agencies, we look at several variables
+that could be influencing the ratings. As a broad guide for choosing the variables, we use
+the World Bank ESG DATA Framework's key sustainable themes of: greenhouse gas emissions,
+water-use efficiency, gender equality, and CEO-employee pay gaps. We end with a 
+multi-variate regression of these independent variables to the dependent ESG score.
+
+
+
+# Data Pocessing and Plotting
+
+Using Refinitiv's immense data portal (accessible with a UChicago email account https://www.refinitiv.com/en/products/refinitiv-workspace)
+to pull two dataframes: one with data on all global energy companies, the other
+with ESG data of energy companies. Both frame are cleaned and merged to form Figure 1.
+
+Figure 1 shows the ESG penetration rate of global energy companies.
+It is calculated as percentage of publicly listed energy companies which have
+received an ESG score. The plot shows high penetration in Western and Central Europe, and
+Latin America. Nearly all energy companies in Austria, Finland, and Colombia have 
+the ESG score. However, we should reiterate that the data doesn't cover all energy
+companies in every country: the 100% penetration can be deceiving in the case
+of Colombia, since only 3 energy companies are publicly listed in Refinitiv, all
+of them receiving the ESG score. There are many more companies not covered by Refinitiv, 
+regardless of the ESG score.
+
+```{r}
+fig1 <- readPNG("images/esg_penetration_map.png")
+grid::grid.raster(fig1)
+
+```
+
+
+# Plotting: Shiny
+
+see: https://cesaranzola945.shinyapps.io/Final_project_DataandProg/
+
+You will find three time-series plots in the economist theme. 
+
+First Plot
+Choose any 'Country'and a 'WDI ESG Metric' to see plot of the country's past four years of CO2 emissions,
+unemployment, female labour force participation, and female/male ratio. This data
+is from the World Bank, and is the third dataset merged for this project.
+
+Second plot (choose 'Company ESG Metric')
+Company level ESG metrics and polynomial regression of its trend in time
+
+Third Plot (choose 'Company ESG Metric')
+Scatter plot between the metrics and their ESG score that is used by financial 
+markets to target companies with sustainable vision
+
+Taking a quick look, the third plot shows, quite alarmingly, that higher 
+emissions are positively coorelated with high ESG score, and 
+overall female to male employee ratio is slightly negatively coorelated with ESG score!
+However, percentage of women on company board is positively coorelated.
+
+
+# Text Processing
+
+To complement our analysis, we take the sustainability/ESG reports of five of
+the ten biggest energy companies by market cap. These are: Exxon (US), 
+PetroChina (China), British Petroleum (UK), Shell (UK), and Gazprom (Russia).
+
+Figure 2: We find that emerging markets like Russia and China show foremost concern with the
+issue of development, and least concern with emissions. The opposite is true for Shell.
+All five companies share least concern with thr words 'business' and 'local'. 'Safety'
+ranks much higher for Gazprom than for its competitors. 
+
+Figure 3: Sentiment analysis shows largely shared trends, dominated by 'positive' (about 10%)
+and 'trust'(about 4-8%). 'Disgust', 'surprise', and 'anger' feature the least.
+
+```{r}
+
+fig2 <- readPNG("images/words_in_common.png")
+grid::grid.raster(fig2)
+```
+```{r}
+fig3 <- readPNG("images/reports_sentiment_NRC.png")
+grid::grid.raster(fig3)
+```
+
+
+## Text Processing: Word Clouds
+
+Now we take stalk of the most common words used in their sustainability/ESG reports
+
+The most common words in the reports for Shell, Exxonmobil, and Gazprom were self-referential.
+For PetroChina they were 'management development' and 'energy'; for British Petroleum
+it was, overwhelmingly, 'sustainability'. In Shell's report, there is no prominence 
+given to 'employees', unlike the other four companies.
+```{r}
+fig4_exxon <- readPNG("images/worldCloudExxon.png")
+grid::grid.raster(fig4_exxon)
+```
+```{r}
+fig5_petrochina <- readPNG("images/worldCloudPetrochina.png")
+grid::grid.raster(fig5_petrochina)
+```
+```{r}
+fig6_bp <- readPNG("images/worldCloudBritishPetrolum.png")
+grid::grid.raster(fig6_bp)
+```
+```{r}
+fig7_shell <- readPNG("images/worldCloudShell.png")
+grid::grid.raster(fig7_shell)
+```
+```{r}
+fig8_gazprom <- readPNG("images/worldCloudGazprom.png")
+grid::grid.raster(fig8_gazprom)
+```
+
+
+# Analysis
+
+Contrary to our presumption, the market capitalisation has very small effect on 
+the dependent variable ESG score. However, it is not statistically significant. 
+Furthermore, while the coefficient is small and negative, there are no statistically significant results here.
+P-value = 0.1 is larger than the threshold 0.05.
+
+This tells us that more research needs to be done on what exactly is driving 
+companies' ESG scores.
+Some difficulties we encountered during the research are related to completeness of data,
+lack of industry standards to identify most scientificically valid variables,
+However, we think that overall lack of clarity around ESG scores and how they are 
+calculated could precisely be the driverd of their explosive popularity in
+the market. It is no wonder that these scores are accused of 'greenwashing', and have
+plenty of whistleblowers to vouch for the fact that they are primarily a marketing
+tool, not meant to make the world a bettter place.
+```{r}
+load("Data/data_refinitiv.Rda")
+
+
+# First we take the first difference in all our independent variables.
+# These are: market_cap, emissions_total, water_to_revenue, women_overall_pct, women_board_pct, and salary_gap
+
+refinitiv_diff <- 
+  data_fin %>%
+  arrange(id, year) %>%
+  group_by(id)%>%
+  mutate(diff_marketcap = market_cap - lag(market_cap), .after = market_cap) %>%
+  mutate(diff_emissionstotal = emissions_total - lag(emissions_total), .after = emissions_total) %>%
+  mutate(diff_water_revenue = water_to_revenue - lag(water_to_revenue), .after = water_to_revenue) %>%
+  mutate(diff_womenoverall = women_overall_pct - lag(women_overall_pct), .after = women_overall_pct) %>%
+  mutate(diff_womenboard = women_board_pct - lag(women_board_pct), .after = women_board_pct) %>%
+  mutate(diff_salarygap = salary_gap - lag(salary_gap), .after = salary_gap)
+
+
+#new data frame dropping all unnecessary columns.
+refinitiv_diff <-
+  subset(refinitiv_diff, select = c(id, name, indst_name, country, year, esg_score,
+                                    diff_marketcap, diff_emissionstotal, diff_water_revenue,
+                                    diff_womenoverall, diff_womenboard, diff_salarygap))
+
+#Select one year
+refinitiv_diff <- subset(refinitiv_diff, year == "2021")
+
+
+# Fitting into OLS model
+model <- lm(esg_score ~ diff_marketcap + diff_emissionstotal + diff_water_revenue +
+              diff_womenoverall + diff_womenboard + diff_salarygap, 
+            data = refinitiv_diff)
+
+summary(model)
+
+
+```
+
+
+
+
